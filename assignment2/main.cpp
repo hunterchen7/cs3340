@@ -16,13 +16,13 @@ void convertBImgToBools(const std::string& filePath, std::vector<std::vector<boo
     while (std::getline(file, line)) {
         std::vector<bool> row;
         for (char pixel : line) {
-            row.push_back(pixel == '+');
+            row.push_back(pixel == '+'); // + is true, space is false
         }
-        image.push_back(row);
+        image.push_back(row); // add new row
     }
 }
 
-DisjointSet getcomponents(std::vector<std::vector<bool>>& grid, int* empty) {
+DisjointSet getComponents(std::vector<std::vector<bool>>& grid, int* empty) {
     if (grid.empty() || grid[0].empty()) return 0;
     int rows = grid.size();
     int cols = grid[0].size();
@@ -61,15 +61,6 @@ DisjointSet getcomponents(std::vector<std::vector<bool>>& grid, int* empty) {
     return ds;
 }
 
-void thresholdPrint(const std::vector<std::vector<bool>>& grid, int threshold) {
-    for (const auto& row : grid) {
-        for (bool pixel : row) {
-            std::cout << (pixel ? '+' : ' ');
-        }
-        std::cout << std::endl;
-    }
-}
-
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "Usage: " << argv[0] << " <path_to_image_file>" << std::endl;
@@ -81,7 +72,7 @@ int main(int argc, char* argv[]) {
     convertBImgToBools(filePath, binaryImage);
 
     // 1. Print the input image
-    std::cout << "Input image: \n";
+    std::cout << "1. Input image: \n";
     for (const auto& row : binaryImage) {
         for (bool pixel : row) {
             std::cout << (pixel ? '+' : ' ');
@@ -90,7 +81,7 @@ int main(int argc, char* argv[]) {
     }
 
     int empty = -1;
-    DisjointSet components = getcomponents(binaryImage, &empty);
+    DisjointSet components = getComponents(binaryImage, &empty);
     empty = components.find_set(empty);
     // this code is pretty convoluted but I couldn't think of a better way in the moment
 
@@ -105,6 +96,7 @@ int main(int argc, char* argv[]) {
     std::unordered_map<int, int> componentSizes;
 
     // 2. The connected component image where each component is labelled with a unique character
+    std::cout << "2. Connected component image: \n";
     for (int i = 0; i < height * width; i++) {
         int find = components.find_set(i);
         if (find == empty) {
@@ -132,13 +124,13 @@ int main(int argc, char* argv[]) {
               [](const auto& a, const auto& b) { return a.second < b.second; });
 
     // 3. a list sorted by component size, each line contains the size and the label of the component
-    std::cout << "component sizes: \n";
+    std::cout << "3. Sorted component sizes: \n";
     for (const auto& [component, size] : sortedcomponentSizes) {
         std::cout << componentMap[component] << " " << componentSizes[component] << std::endl;
     }
 
     // 4. same as 2, but only connected components whose size is greater than 2 are printed
-    std::cout << "Connected components with size greater than 2: \n";
+    std::cout << "4. Connected components with size greater than 2: \n";
     for (int i = 0; i < height * width; i++) {
         int find = components.find_set(i);
         if (find == empty || componentSizes[find] <= 2) {
@@ -152,7 +144,7 @@ int main(int argc, char* argv[]) {
     }
 
     // 5. same as 2, but only connected components whose size is greater than 11 are printed
-    std::cout << "Connected components with size greater than 11: \n";
+    std::cout << "5. Connected components with size greater than 11: \n";
     for (int i = 0; i < height * width; i++) {
         int find = components.find_set(i);
         if (find == empty || componentSizes[find] <= 11) {

@@ -25,8 +25,15 @@ void DisjointSet::union_sets(int i, int j) {
     if (final) return;
     int rootI = find_set(i);
     int rootJ = find_set(j);
-    if (rootI == rootJ) return;
-    parent[rootJ] = rootI;
+    if (rootI != rootJ) {
+        if (rank[rootI] < rank[rootJ]) {
+            std::swap(rootI, rootJ);
+        }
+        parent[rootJ] = rootI;
+        if (rank[rootI] == rank[rootJ]) {
+            ++rank[rootI];
+        }
+    }
     --numSets;
 }
 
